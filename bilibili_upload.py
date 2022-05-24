@@ -56,9 +56,12 @@ class BiliUpload:
             print("跳过引导页")
             self.browser.find_element(By.ID,"canvas-wrap").find_element(By.CLASS_NAME,"jump").click()
         except:
-            self.notice.send(title="[yb]告警",content="未发现引导页，可能是登录失败，Cookie 失效")
+            pass
         print("打开上传页面")
-        self.browser.find_element(By.ID, "nav_upload_btn").click()
+        try:
+            self.browser.find_element(By.ID, "nav_upload_btn").click()
+        except:
+            self.notice.send(title="[yb]告警", content="未发现上传视频按钮，可能是登录失败，Cookie 失效")
         time.sleep(1)
         try:
             print("打开上传视频标签页")

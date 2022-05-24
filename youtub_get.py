@@ -74,13 +74,13 @@ class YoutubGet:
     def finish_download_hook(self, d):
         # 重命名下载的视频名称的钩子
         if d['status'] == 'finished':
-            local_path ="video/{}".format(d['filename'])
+            local_path = "video/{}".format(d['filename'])
             if not os.path.exists(local_path):
                 os.makedirs(local_path)
-            file_name = '{}/{}.mp4'.format(local_path,self.current_video.get_name())
-            info_file_name = '{}/{}.json'.format(local_path,self.current_video.get_name())
+            file_name = '{}/{}.mp4'.format(local_path, self.current_video.get_name())
+            info_file_name = '{}/{}.json'.format(local_path, self.current_video.get_name())
             rename(d['filename'], file_name)
-            with open(info_file_name,"w") as info_file:
+            with open(info_file_name, "w") as info_file:
                 info_file.write(self.current_video.to_json())
             print('下载完成 {}'.format(file_name))
             self.__mark_downloaded(self.current_video.get_uuid())
@@ -91,17 +91,17 @@ class YoutubGet:
             except:
                 print("下载缩略图失败")
 
-    def __download_proview_image(self,local_path):
+    def __download_proview_image(self, local_path):
         url = "https://i.ytimg.com/vi/{}/hqdefault.jpg".format(self.current_video.get_uuid())
         res = requests.get(url)
         if res.status_code == 200:
-            with open('{}/{}.jpg'.format(local_path,self.current_video.get_name()),"wb") as img_file:
+            with open('{}/{}.jpg'.format(local_path, self.current_video.get_name()), "wb") as img_file:
                 img_file.write(res.content)
         else:
             print(res.content)
             raise ValueError(res.status_code)
 
-    def __download_vedios(self,video):
+    def __download_vedios(self, video):
         self.current_video = video
         ydl_ops = {
             # 'proxy': 'socks5://192.168.1.110:20170',
@@ -112,35 +112,34 @@ class YoutubGet:
             print("start download. [{}]".format(video.url))
             start = time.time()
             ydl.download([video.url])
-            print("download finish. [{}] in [{}]".format(video.url,(time.time() - start)))
+            print("download finish. [{}] in [{}]".format(video.url, (time.time() - start)))
 
     def __load_downloaded_states(self):
         if not os.path.exists(self.__download_state_file__):
-            open(self.__download_state_file__,"w").write("")
-        with open(self.__download_state_file__,"r") as state_file:
+            open(self.__download_state_file__, "w").write("")
+        with open(self.__download_state_file__, "r") as state_file:
             lines = []
             for line in state_file.readlines():
                 lines.append(line)
             return lines
 
     def __mark_downloaded(self, d_file_name):
-        with open(self.__download_state_file__,"w") as state_file:
+        with open(self.__download_state_file__, "a") as state_file:
             state_file.writelines([d_file_name])
 
-    def start_get(self,url):
+    def start_get(self, url):
         videos = self._list_vidios(url)
         for video in videos:
             self.__get_video_tags(video)
             print("get tags of: {tt} -> {tags}".format(tt=video.title, tags=video.tags))
             try:
                 self.__download_vedios(video)
-                self.notice.send("[yb]通知","下载完成.{} \n {}".format(video.get_uuid(), video.title))
+                self.notice.send("[yb]通知", "下载完成.{} \n {}".format(video.get_uuid(), video.title))
             except Exception as e:
-                self.notice.send("[yb]告警","下载失败.{} \n {}".format(video.title,e))
+                self.notice.send("[yb]告警", "下载失败.{} \n {}".format(video.title, e))
 
     def __init_config__(self):
         self.__download_state_file__ = "d_state.txt"
-
 
 class Video:
     def __init__(self, title, url):
@@ -160,13 +159,21 @@ class Video:
     def to_json(self):
         return json.dumps(self.__dict__)
 
+
 if __name__ == '__main__':
     urls = [
-        "https://www.youtube.com/c/Kavsoft/videos",
-        "https://www.youtube.com/c/PaulHudson/videos",
-        "https://www.youtube.com/c/iOSAcademy/videos",
-        "https://www.youtube.com/channel/UCHaYcy9627HPl6YTwKrYBAw/videos"
+        # "https://www.youtube.com/c/Kavsoft/videos",
+        # "https://www.youtube.com/c/PaulHudson/videos",
+        # "https://www.youtube.com/c/iOSAcademy/videos",
+        # "https://www.youtube.com/channel/UCHaYcy9627HPl6YTwKrYBAw/videos",
+        # "https://www.youtube.com/channel/UCvRJvjskYw7tN8sa30H37oQ/videos",
+        # "https://www.youtube.com/c/XcodingwithAlfian/videos",
+        # "https://www.youtube.com/channel/UC8kKiLBR_4lOgCXqlYwTvxw/videos"
     ]
+    with open("yurls.txt","r") as urls_file:
+        for line in urls_file.readlines():
+            if line not in urls:
+                urls.append(line)
+    YoutubGet().notice.send(title="[yb]信息",content="开始下载数据，共 [{}] 个URL".format(len(urls)))
     for url in urls:
         YoutubGet().start_get(url=url)
-
