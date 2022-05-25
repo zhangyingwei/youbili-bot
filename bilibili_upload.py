@@ -277,4 +277,7 @@ class BiliUpload:
 
 
 if __name__ == '__main__':
-    BiliUpload().start()
+    try:
+        BiliUpload().start()
+    except Exception as e:
+        NoticeBot().send(title="[yb]告警", content="BI 启动失败. {}".format(e))

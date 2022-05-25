@@ -172,10 +172,13 @@ class Video:
 
 if __name__ == '__main__':
     urls = []
-    with open(YoutubGet().config.get_config("youtub", "yurl_path"), "r") as urls_file:
-        for line in urls_file.readlines():
-            if line not in urls:
-                urls.append(line)
-    YoutubGet().notice.send(title="[yb]信息", content="开始下载数据，共 [{}] 个URL".format(len(urls)))
-    for url in urls:
-        YoutubGet().start_get(url=url)
+    try:
+        with open(YoutubGet().config.get_config("youtub", "yurl_path"), "r") as urls_file:
+            for line in urls_file.readlines():
+                if line not in urls:
+                    urls.append(line)
+        NoticeBot().send(title="[yb]信息", content="开始下载数据，共 [{}] 个URL".format(len(urls)))
+        for url in urls:
+            YoutubGet().start_get(url=url)
+    except Exception as e:
+        NoticeBot().send("[yb]告警", "YB启动失败.{}".format(e))
