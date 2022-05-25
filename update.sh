@@ -9,3 +9,6 @@ git fetch –all
 git reset --hard origin/main
 
 mv -f /home/d_state.txt.1 ./d_state.txt
+git add .
+git commit -m 'commit by update'
+git push
