@@ -9,20 +9,27 @@ from selenium.webdriver.common.by import By
 import youtube_dl
 import json
 
+from config_kit import ConfigKit
 from notice_bot import NoticeBot
 
 
 class YoutubGet:
     def __init__(self):
+        self.config = ConfigKit()
         self.options = webdriver.ChromeOptions()
-        self.options.add_argument("--headless")
+        if self.config.get_bool_config("youtub", "headless"):
+            self.options.add_argument("--headless")
         self.options.add_argument("--disable-gpu")
         self.options.add_argument("--no-sandbox")
         self.options.add_argument("--window-size=1920,1080")
-        # self.options.add_argument('--proxy-server=http://192.168.1.110:20171')
+        if self.config.get_bool_config("youtub", "use_proxy"):
+            self.options.add_argument('--proxy-server={}'.format(
+                self.config.get_config("youtub", "proxy_server")
+            ))
 
-        self.service = Service("/opt/youbili-bot/driver/chromedriver")
-        # self.service = Service("E:\\codes\\youbili-bot\\driver\\chromedriver.exe")
+        self.service = Service(
+            self.config.get_config("youtub", "driver_path")
+        )
         self.browser = webdriver.Chrome(
             service=self.service,
             options=self.options
@@ -47,7 +54,7 @@ class YoutubGet:
         video_list = []
         states = self.__load_downloaded_states()
         for index, video in enumerate(videos):
-            if len(video_list) >= 2:
+            if len(video_list) >= self.config.get_int_config("youtub", "video_count_pre_account"):
                 break
             video_href = video.find_element(by=By.ID, value="video-title").get_attribute("href")
             video_title = video.find_element(by=By.ID, value="video-title").text
@@ -74,7 +81,7 @@ class YoutubGet:
     def finish_download_hook(self, d):
         # 重命名下载的视频名称的钩子
         if d['status'] == 'finished':
-            local_path = "video/{}".format(d['filename'])
+            local_path = "{}/{}".format(self.config.get_config("youtub", "local_video_path"), d['filename'])
             if not os.path.exists(local_path):
                 os.makedirs(local_path)
             file_name = '{}/{}.mp4'.format(local_path, self.current_video.get_name())
@@ -129,6 +136,7 @@ class YoutubGet:
 
     def start_get(self, url):
         videos = self._list_vidios(url)
+        self.notice.send(title="[yb]YB下载通知", content="vcount:[{}] - url: [{}]".format(len(videos), url))
         for video in videos:
             self.__get_video_tags(video)
             print("get tags of: {tt} -> {tags}".format(tt=video.title, tags=video.tags))
@@ -139,7 +147,8 @@ class YoutubGet:
                 self.notice.send("[yb]告警", "下载失败.{} \n {}".format(video.title, e))
 
     def __init_config__(self):
-        self.__download_state_file__ = "d_state.txt"
+        self.__download_state_file__ = self.config.get_config("youtub", "local_state")
+
 
 class Video:
     def __init__(self, title, url):
@@ -161,19 +170,11 @@ class Video:
 
 
 if __name__ == '__main__':
-    urls = [
-        # "https://www.youtube.com/c/Kavsoft/videos",
-        # "https://www.youtube.com/c/PaulHudson/videos",
-        # "https://www.youtube.com/c/iOSAcademy/videos",
-        # "https://www.youtube.com/channel/UCHaYcy9627HPl6YTwKrYBAw/videos",
-        # "https://www.youtube.com/channel/UCvRJvjskYw7tN8sa30H37oQ/videos",
-        # "https://www.youtube.com/c/XcodingwithAlfian/videos",
-        # "https://www.youtube.com/channel/UC8kKiLBR_4lOgCXqlYwTvxw/videos"
-    ]
-    with open("yurls.txt","r") as urls_file:
+    urls = []
+    with open(YoutubGet().config.get_config("youtub", "yurl_path"), "r") as urls_file:
         for line in urls_file.readlines():
             if line not in urls:
                 urls.append(line)
-    YoutubGet().notice.send(title="[yb]信息",content="开始下载数据，共 [{}] 个URL".format(len(urls)))
+    YoutubGet().notice.send(title="[yb]信息", content="开始下载数据，共 [{}] 个URL".format(len(urls)))
     for url in urls:
         YoutubGet().start_get(url=url)

@@ -1,5 +1,6 @@
 import json
 import os
+import random
 import time
 from PIL import Image
 from selenium import webdriver
@@ -7,21 +8,24 @@ from selenium.webdriver import Keys
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 
+from config_kit import ConfigKit
 from notice_bot import NoticeBot
 
 
 class BiliUpload:
 
     def __init__(self):
+        self.config = ConfigKit()
         self.options = webdriver.ChromeOptions()
-        self.options.add_argument("--headless")
+        if self.config.get_bool_config("bili", "headless"):
+            self.options.add_argument("--headless")
         self.options.add_argument("--disable-gpu")
-        # self.options.add_argument('--proxy-server=http://192.168.1.110:20171')
         self.options.add_argument("--no-sandbox")
         self.options.add_argument("--window-size=1920,1080")
 
-        self.service = Service("/opt/youbili-bot/driver/chromedriver")
-        # self.service = Service("E:\\codes\\youbili-bot\\driver\\chromedriver.exe")
+        self.service = Service(
+            self.config.get_config("youtub", "driver_path")
+        )
         self.browser = webdriver.Chrome(
             service=self.service,
             options=self.options
@@ -31,8 +35,8 @@ class BiliUpload:
         self.notice = NoticeBot()
 
     def __init_config__(self):
-        self.__cookie_file__ = "cookie.txt"
-        self.__videos_dir__ = "video"
+        self.__cookie_file__ = self.config.get_config("bili", "cookie_file")
+        self.__videos_dir__ = self.config.get_config("bili", "local_video_path")
         self.__cookie_seted__ = False
 
     def __open_createor_platform(self):
@@ -54,7 +58,7 @@ class BiliUpload:
         time.sleep(2)
         try:
             print("跳过引导页")
-            self.browser.find_element(By.ID,"canvas-wrap").find_element(By.CLASS_NAME,"jump").click()
+            self.browser.find_element(By.ID, "canvas-wrap").find_element(By.CLASS_NAME, "jump").click()
         except:
             pass
         print("打开上传页面")
@@ -65,12 +69,11 @@ class BiliUpload:
         time.sleep(1)
         try:
             print("打开上传视频标签页")
-            self.browser.find_element(By.CLASS_NAME,"upload-nav").find_elements(By.CLASS_NAME,"upload-nav-item")[0].click()
+            self.browser.find_element(By.CLASS_NAME, "upload-nav").find_elements(By.CLASS_NAME, "upload-nav-item")[
+                0].click()
         except:
             pass
         time.sleep(2)
-
-
 
     def start(self):
         # self.__open_createor_platform()
@@ -78,23 +81,28 @@ class BiliUpload:
         self.__list_videos()
 
     def __list_videos(self):
+        self.notice.send(title="[yb]发布提示", content="我已经迫不及待了...")
+        count = 0
         for vitem in os.listdir(self.__videos_dir__):
-            info_path = os.path.join(self.__videos_dir__,vitem,"v.json")
-            video_path = os.path.join(self.__videos_dir__,vitem,"v.mp4")
-            img_path = os.path.join(self.__videos_dir__,vitem,"v.jpg")
-            done_path = os.path.join(self.__videos_dir__,vitem,"done")
+            info_path = os.path.join(self.__videos_dir__, vitem, "v.json")
+            video_path = os.path.join(self.__videos_dir__, vitem, "v.mp4")
+            img_path = os.path.join(self.__videos_dir__, vitem, "v.jpg")
+            done_path = os.path.join(self.__videos_dir__, vitem, "done")
             print("检查 {}".format(done_path))
             if os.path.exists(done_path):
                 continue
-            with open(info_path,"r") as info_file:
+            count += 1
+            with open(info_path, "r") as info_file:
                 info = json.load(info_file)
                 print("开始处理视频: [{}]".format(info["title"]))
                 try:
                     self.__open_createor_platform()
-                    self.__upload_video(vpath=os.path.abspath(video_path),vtitle=info["title"],vtags=info["tags"],imgpath=img_path)
+                    self.__upload_video(vpath=os.path.abspath(video_path), vtitle=info["title"], vtags=info["tags"],
+                                        imgpath=img_path)
                     time.sleep(2)
                 except Exception as e:
                     print("处理视频失败. {}".format(e))
+        self.notice.send(title="[yb]发布通知", content="共发布了 {} 个视频".format(count))
 
     def __store_cookie(self, cookies):
         print(cookies)
@@ -117,23 +125,24 @@ class BiliUpload:
             for item in items:
                 if "=" in item:
                     kv = item.split("=")
-                    dict_item = {"name": kv[0].strip(), "value": kv[1].strip(), 'domain': '.bilibili.com' }
+                    dict_item = {"name": kv[0].strip(), "value": kv[1].strip(), 'domain': '.bilibili.com'}
                     cookie_dict.append(dict_item)
             return cookie_dict
 
-    def __upload_video(self, vpath,vtitle,vtags,imgpath):
+    def __upload_video(self, vpath, vtitle, vtags, imgpath):
         print("start upload video: {}".format(vtitle))
         print("切换 iframe")
         self.browser.switch_to.frame("videoUpload")
         print("上传视频")
-        self.browser.find_element(By.CLASS_NAME, "bcc-upload-wrapper").find_element(By.TAG_NAME, "input").send_keys(vpath)
+        self.browser.find_element(By.CLASS_NAME, "bcc-upload-wrapper").find_element(By.TAG_NAME, "input").send_keys(
+            vpath)
 
         title = vtitle
         time.sleep(1)
 
         print("填写 title")
-        title_input = self.browser.find_element(By.CLASS_NAME,"video-title").find_element(By.TAG_NAME,"input")
-        title_input.send_keys(Keys.CONTROL+'a')
+        title_input = self.browser.find_element(By.CLASS_NAME, "video-title").find_element(By.TAG_NAME, "input")
+        title_input.send_keys(Keys.CONTROL + 'a')
         title_input.send_keys(Keys.BACKSPACE)
         title_input.send_keys(title)
 
@@ -142,8 +151,8 @@ class BiliUpload:
         print("选择视频类型为 自制")
         # 自制-0  转载-1
         try:
-            self.browser.find_element(By.CLASS_NAME,"type-check-radio-wrp")\
-            .find_elements(By.CLASS_NAME,"check-radio-v2-container")[0].click()
+            self.browser.find_element(By.CLASS_NAME, "type-check-radio-wrp") \
+                .find_elements(By.CLASS_NAME, "check-radio-v2-container")[0].click()
         except Exception as e:
             print("选择视频类型失败. {}".format(e))
 
@@ -151,22 +160,24 @@ class BiliUpload:
 
         try:
             print("选择视频分类")
-            vtype = self.browser.find_element(By.CLASS_NAME,"video-type")
-            vtype.find_element(By.CLASS_NAME,"select-container").click()
-            drop_container = self.browser.find_element(By.CLASS_NAME,"drop-container")
-            drop_container.find_element(By.CLASS_NAME,"drop-f-wrp").find_elements(By.CLASS_NAME,"drop-f-item")[4].click()
-            drop_container.find_element(By.CLASS_NAME,"drop-t-wrp").find_elements(By.CLASS_NAME,"drop-t-item")[7].click()
+            vtype = self.browser.find_element(By.CLASS_NAME, "video-type")
+            vtype.find_element(By.CLASS_NAME, "select-container").click()
+            drop_container = self.browser.find_element(By.CLASS_NAME, "drop-container")
+            drop_container.find_element(By.CLASS_NAME, "drop-f-wrp").find_elements(By.CLASS_NAME, "drop-f-item")[
+                4].click()
+            drop_container.find_element(By.CLASS_NAME, "drop-t-wrp").find_elements(By.CLASS_NAME, "drop-t-item")[
+                7].click()
         except Exception as e:
             print("select type error.{}".format(e))
 
         tags = vtags
         tags.append("知识分享")
         print("添加标签")
-        tag_container = self.browser.find_element(By.CLASS_NAME,"tag-container")
+        tag_container = self.browser.find_element(By.CLASS_NAME, "tag-container")
         for tag in tags:
             print("add tag: {}".format(tag))
-            tag_container.find_element(By.TAG_NAME,"input").send_keys(tag)
-            tag_container.find_element(By.TAG_NAME,"input").send_keys(Keys.ENTER)
+            tag_container.find_element(By.TAG_NAME, "input").send_keys(tag)
+            tag_container.find_element(By.TAG_NAME, "input").send_keys(Keys.ENTER)
             time.sleep(2)
 
         try:
@@ -179,15 +190,17 @@ class BiliUpload:
                     print("修正封面图大小")
                     new_img_path = "{}.n.jpg".format(imgpath)
                     img = Image.open(imgpath)
-                    nimg = img.resize((1146,717))
+                    nimg = img.resize((1146, 717))
                     print(nimg.size)
                     nimg.save(new_img_path)
                     print("上传封面图")
-                    self.browser.find_element(By.CLASS_NAME,"bcc-upload-wrapper").find_element(By.TAG_NAME,"input").send_keys(
+                    self.browser.find_element(By.CLASS_NAME, "bcc-upload-wrapper").find_element(By.TAG_NAME,
+                                                                                                "input").send_keys(
                         os.path.abspath(new_img_path)
                     )
                     time.sleep(2)
-                    self.browser.find_element(By.CLASS_NAME,"prize-dialog-footer").find_element(By.CLASS_NAME,"bcc-button--primary").click()
+                    self.browser.find_element(By.CLASS_NAME, "prize-dialog-footer").find_element(By.CLASS_NAME,
+                                                                                                 "bcc-button--primary").click()
                     time.sleep(2)
                 except Exception as e:
                     print("上传封面图失败 - {}".format(e))
@@ -196,24 +209,29 @@ class BiliUpload:
             self.browser.execute_script("var q=document.body.scrollTop=1000")
             time.sleep(2)
             try:
-                self.browser.find_element(By.CLASS_NAME,"submit-container").find_element(By.CLASS_NAME,"submit-add").click()
+                self.browser.find_element(By.CLASS_NAME, "submit-container").find_element(By.CLASS_NAME,
+                                                                                          "submit-add").click()
             except:
                 self.browser.execute_script('document.getElementsByClassName("submit-add")[0].click()')
 
             print("publish clicked. [{}]".format(vtitle))
-            self.__check_success(vtitle,vpath)
+            self.__check_success(vtitle, vpath)
             # TODO
             # time.sleep(10000)
+            sleep_time = random.randint(10,60)
+            print("")
+            time.sleep(sleep_time)
+
         except Exception as e:
             print("publish faild,{}".format(e))
-            self.notice.send(title="[yb]告警", content="发布视频失败. {} - {}".format(vtitle,e))
+            self.notice.send(title="[yb]告警", content="发布视频失败. {} - {}".format(vtitle, e))
 
-    def __mark_uploaded(self,vpath):
-        with open(os.path.join(os.path.dirname(vpath),"done"),"w") as done_file:
+    def __mark_uploaded(self, vpath):
+        with open(os.path.join(os.path.dirname(vpath), "done"), "w") as done_file:
             done_file.write("")
 
     def __check_finish(self):
-        status = self.browser.find_element(By.CLASS_NAME,"file-status-text").text
+        status = self.browser.find_element(By.CLASS_NAME, "file-status-text").text
         while "完成" not in status and "失败" not in status:
             time.sleep(5)
             print("check status...[{}]".format(status))
@@ -221,13 +239,13 @@ class BiliUpload:
         print("等待10秒，生成封面图.")
         time.sleep(10)
 
-    def __check_success(self,vtitle,vpath):
+    def __check_success(self, vtitle, vpath):
         count = 10
         for i in range(count):
             try:
-                texts = self.browser.find_element(By.CLASS_NAME,"step-des")
+                texts = self.browser.find_element(By.CLASS_NAME, "step-des")
                 console_log = self.browser.get_log("browser")
-                print("check success. {} - {}".format(texts,console_log))
+                print("check success. {} - {}".format(texts, console_log))
                 for log in console_log:
                     print("console: {}".format(log))
                     if log['message'] and "tag" in log['message']:
@@ -254,8 +272,8 @@ class BiliUpload:
         self.browser.get_screenshot_as_file(
             os.path.abspath("{}.screenshot.png".format(vpath))
         )
-        print("发布视频失败. {} - {}".format(vtitle,"未检测到成功标识"))
-        self.notice.send(title="[yb]告警", content="发布视频失败. {} - {}".format(vtitle,"未检测到成功标识"))
+        print("发布视频失败. {} - {}".format(vtitle, "未检测到成功标识"))
+        self.notice.send(title="[yb]告警", content="发布视频失败. {} - {}".format(vtitle, "未检测到成功标识"))
 
 
 if __name__ == '__main__':
