@@ -132,7 +132,8 @@ class YoutubGet:
 
     def __mark_downloaded(self, d_file_name):
         with open(self.__download_state_file__, "a") as state_file:
-            state_file.writelines([d_file_name])
+            state_file.write(d_file_name)
+            state_file.write("\n")
 
     def start_get(self, url):
         videos = self._list_vidios(url)
