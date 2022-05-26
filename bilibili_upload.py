@@ -117,6 +117,7 @@ class BiliUpload:
     def __get_cookie(self):
         if not os.path.exists(self.__cookie_file__):
             print("cookie file is not exites[{}]".format(self.__cookie_file__))
+            self.notice.send(title="[yb]告警", content="cookie file is not exites[{}]".format(self.__cookie_file__))
             exit(-1)
         with open(self.__cookie_file__, "r") as cookie_file:
             cookie_content = cookie_file.read()
