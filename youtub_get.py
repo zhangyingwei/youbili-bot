@@ -1,3 +1,4 @@
+import datetime
 import os
 import time
 from os import rename
@@ -120,6 +121,7 @@ class YoutubGet:
 
     def __download_vedios(self, video):
         self.current_video = video
+        self.__download_start_time__ = datetime.datetime.now()
         ydl_ops = {
             # 'proxy': 'socks5://192.168.1.110:20170',
             'outtmpl': '%(id)s%(ext)s',
@@ -153,7 +155,7 @@ class YoutubGet:
             print("get tags of: {tt} -> {tags}".format(tt=video.title, tags=video.tags))
             try:
                 self.__download_vedios(video)
-                self.notice.send("[yb]下载完成通知", "下载完成.{} \n {}".format(video.get_uuid(), video.title))
+                self.notice.send("[yb]下载完成通知", "下载完成.{} \n {} \t 耗时: {}s".format(video.get_uuid(), video.title,(datetime.datetime.now() - self.__download_start_time__).seconds))
             except Exception as e:
                 self.notice.send("[yb]告警", "下载失败.{} \n {}".format(video.title, e))
 
