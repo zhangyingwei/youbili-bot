@@ -1,6 +1,7 @@
 import json
 import os
 import random
+import shutil
 import time
 from PIL import Image
 from selenium import webdriver
@@ -265,6 +266,7 @@ class BiliUpload:
                     self.__mark_uploaded(vpath)
                     self.notice.send(title="[yb]通知", content="发布视频成功. {}".format(vtitle))
                     print("发布视频成功. {}".format(vtitle))
+                    self.__remove_after_publish__(vpath)
                     return
                 time.sleep(2)
             except Exception as e:
@@ -275,6 +277,13 @@ class BiliUpload:
         )
         print("发布视频失败. {} - {}".format(vtitle, "未检测到成功标识"))
         self.notice.send(title="[yb]告警", content="发布视频失败. {} - {}".format(vtitle, "未检测到成功标识"))
+
+    def __remove_after_publish__(self, vpath):
+        dir_path = os.path.dirname(vpath)
+        shutil.rmtree(dir_path)
+        # for file in os.listdir(dir_path):
+        #     file_path = os.path.join(dir_path,file)
+        #
 
 
 if __name__ == '__main__':
