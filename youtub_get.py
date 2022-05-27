@@ -70,7 +70,7 @@ class YoutubGet:
             need_download+=1
             video_list.append(video_item)
         print("list videos.[{}]".format(len(video_list)))
-        self.notice.send(title="[yb]YB下载通知", content="共 {} 个视频，其中 待下载 {} 个，有 {} 个是已经下载过.".format(len(videos),need_download,had_download))
+        self.notice.send(title="[yb]YB下载通知", content="共 {} 个视频，其中 待下载 {} 个，有 {} 个是已经下载过.".format(len(videos),len(video_list),had_download))
         return video_list
 
     def __get_video_tags(self, video):
