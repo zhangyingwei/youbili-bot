@@ -221,8 +221,8 @@ class BiliUpload:
             self.__check_success(vtitle, vpath)
             # TODO
             # time.sleep(10000)
-            sleep_time = random.randint(10,60)
-            print("")
+            sleep_time = random.randint(60,180)
+            print("random sleep.{}".format(sleep_time))
             time.sleep(sleep_time)
 
         except Exception as e:
