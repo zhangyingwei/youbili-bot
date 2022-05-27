@@ -67,10 +67,15 @@ class YoutubGet:
                 print("video had downloaded before. [{}]".format(video_item.url))
                 had_download += 1
                 continue
-            need_download+=1
+            need_download += 1
             video_list.append(video_item)
         print("list videos.[{}]".format(len(video_list)))
-        self.notice.send(title="[yb]YB下载通知", content="共 {} 个视频，其中 待下载 {} 个，有 {} 个是已经下载过.".format(len(videos),len(video_list),had_download))
+        self.notice.send(title="[yb]YB下载通知", content="共 {} 个视频, 下载其中的 {} 个，待下载 {} 个，有 {} 个是已经下载过.".format(len(videos),
+                                                                                                          self.config.get_int_config(
+                                                                                                              "youtub",
+                                                                                                              "video_count_pre_account"),
+                                                                                                          need_download,
+                                                                                                          had_download))
         return video_list
 
     def __get_video_tags(self, video):
@@ -132,7 +137,7 @@ class YoutubGet:
         with open(self.__download_state_file__, "r") as state_file:
             lines = []
             for line in state_file.readlines():
-                lines.append(line.replace("\n",""))
+                lines.append(line.replace("\n", ""))
             return lines
 
     def __mark_downloaded(self, d_file_name):
