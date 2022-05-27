@@ -132,7 +132,7 @@ class YoutubGet:
         with open(self.__download_state_file__, "r") as state_file:
             lines = []
             for line in state_file.readlines():
-                lines.append(line)
+                lines.append(line.replace("\n",""))
             return lines
 
     def __mark_downloaded(self, d_file_name):
@@ -178,7 +178,7 @@ class Video:
 if __name__ == '__main__':
     urls = []
     try:
-        with open(YoutubGet().config.get_config("youtub", "yurl_path"), "r") as urls_file:
+        with open(ConfigKit().get_config("youtub", "yurl_path"), "r") as urls_file:
             for line in urls_file.readlines():
                 if line not in urls:
                     urls.append(line)
