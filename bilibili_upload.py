@@ -92,7 +92,6 @@ class BiliUpload:
             print("检查 {}".format(done_path))
             if os.path.exists(done_path):
                 continue
-            count += 1
             with open(info_path, "r") as info_file:
                 info = json.load(info_file)
                 print("开始处理视频: [{}]".format(info["title"]))
@@ -103,6 +102,8 @@ class BiliUpload:
                     time.sleep(2)
                 except Exception as e:
                     print("处理视频失败. {}".format(e))
+                    self.notice.send(title="[yb]视频处理通知", content="处理视频失败. {}".format(e))
+        count += 1
         self.notice.send(title="[yb]发布通知", content="共发布了 {} 个视频".format(count))
 
     def __store_cookie(self, cookies):
