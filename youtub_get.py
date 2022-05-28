@@ -155,7 +155,7 @@ class YoutubGet:
             print("get tags of: {tt} -> {tags}".format(tt=video.title, tags=video.tags))
             try:
                 self.__download_vedios(video)
-                self.notice.send("[yb]下载完成通知", "下载完成.{} \n {} \t 耗时: {}s".format(video.get_uuid(), video.title,(datetime.datetime.now() - self.__download_start_time__).seconds))
+                self.notice.send("[yb]下载完成通知", "下载完成.{} \n [{}] \t 耗时: {}s".format(video.get_uuid(), video.title,(datetime.datetime.now() - self.__download_start_time__).seconds))
             except Exception as e:
                 self.notice.send("[yb]告警", "下载失败.{} \n {}".format(video.title, e))
 
