@@ -102,6 +102,8 @@ class BiliUpload:
                     time.sleep(2)
                 except Exception as e:
                     print("处理视频失败. {}".format(e))
+                    self.__mark_uploaded(video_path)
+                    self.__mark_faild(video_path,e)
                     self.notice.send(title="[yb]视频处理通知", content="处理视频失败. {}".format(e))
                     count -= 1
                     time.sleep(30)
@@ -234,6 +236,10 @@ class BiliUpload:
     def __mark_uploaded(self, vpath):
         with open(os.path.join(os.path.dirname(vpath), "done"), "w") as done_file:
             done_file.write("")
+
+    def __mark_faild(self, vpath, e):
+        with open(os.path.join(os.path.dirname(vpath), "faild_msg"), "w") as done_file:
+            done_file.write("{}".format(e))
 
     def __check_finish(self):
         status = self.browser.find_element(By.CLASS_NAME, "file-status-text").text
