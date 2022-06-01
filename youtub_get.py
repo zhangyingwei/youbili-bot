@@ -8,6 +8,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 import youtube_dl
+import yt_dlp
 import json
 
 from config_kit import ConfigKit
@@ -127,7 +128,8 @@ class YoutubGet:
             'outtmpl': '%(id)s%(ext)s',
             'progress_hooks': [self.finish_download_hook],
         }
-        with youtube_dl.YoutubeDL(params=ydl_ops) as ydl:
+        with yt_dlp.YoutubeDL(params=ydl_ops) as ydl:
+        # with youtube_dl.YoutubeDL(params=ydl_ops) as ydl:
             print("start download. [{}]".format(video.url))
             start = time.time()
             ydl.download([video.url])
