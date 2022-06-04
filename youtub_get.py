@@ -163,7 +163,7 @@ class YoutubGet:
                     video.get_uuid(),
                     video.title,
                     (datetime.datetime.now() - self.__download_start_time__).seconds,
-                    self.__download_video_size__/(1024*1024)
+                    round(self.__download_video_size__/(1024*1024),3)
                 ))
             except Exception as e:
                 self.notice.send("[yb]告警", "下载失败.{} \n {}".format(video.title, e))
