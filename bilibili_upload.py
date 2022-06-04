@@ -80,6 +80,7 @@ class BiliUpload:
         # self.__open_createor_platform()
         # self.__upload_video()
         self.__list_videos()
+        self.__clear_cache__()
 
     def __list_videos(self):
         self.notice.send(title="[yb]发布提示", content="我已经迫不及待了...")
@@ -249,6 +250,13 @@ class BiliUpload:
             status = self.browser.find_element(By.CLASS_NAME, "file-status-text").text
         print("等待10秒，生成封面图.")
         time.sleep(10)
+
+    def __clear_cache__(self):
+        for vitem in os.listdir(self.__videos_dir__):
+            if vitem.endswith(".mp4"):
+                mp4_path = os.path.join(self.__videos_dir__,vitem)
+                if os.path.exists(os.path.join(os.path.dirname(self.__videos_dir__), "done")):
+                    shutil.rmtree(mp4_path,ignore_errors=True)
 
     def __check_success(self, vtitle, vpath):
         count = 10
