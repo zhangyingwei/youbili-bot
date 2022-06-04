@@ -104,7 +104,7 @@ class BiliUpload:
                 except Exception as e:
                     print("处理视频失败. {}".format(e))
                     self.__mark_uploaded(video_path)
-                    self.__mark_faild(video_path,e)
+                    self.__mark_faild(video_path, e)
                     self.notice.send(title="[yb]视频处理通知", content="处理视频失败. {}".format(e))
                     count -= 1
                     time.sleep(30)
@@ -226,7 +226,7 @@ class BiliUpload:
             self.__check_success(vtitle, vpath)
             # TODO
             # time.sleep(10000)
-            sleep_time = random.randint(60,180)
+            sleep_time = random.randint(60, 180)
             print("random sleep.{}".format(sleep_time))
             time.sleep(sleep_time)
 
@@ -252,11 +252,16 @@ class BiliUpload:
         time.sleep(10)
 
     def __clear_cache__(self):
+        count = 0
+        vsize = 0
         for vitem in os.listdir(self.__videos_dir__):
             if vitem.endswith(".mp4"):
-                mp4_path = os.path.join(self.__videos_dir__,vitem)
+                mp4_path = os.path.join(self.__videos_dir__, vitem)
                 if os.path.exists(os.path.join(os.path.dirname(self.__videos_dir__), "done")):
-                    shutil.rmtree(mp4_path,ignore_errors=True)
+                    vsize+=os.path.getsize(filename=mp4_path)
+                    shutil.rmtree(mp4_path, ignore_errors=True)
+                    count += 1
+        self.notice.send(title="[yb]清理缓存", content="清理缓存 {} 个. 释放空间 {}".format(count,vsize))
 
     def __check_success(self, vtitle, vpath):
         count = 10
