@@ -261,7 +261,7 @@ class BiliUpload:
                     vsize+=os.path.getsize(filename=mp4_path)
                     shutil.rmtree(mp4_path, ignore_errors=True)
                     count += 1
-        self.notice.send(title="[yb]清理缓存", content="清理缓存 {} 个. 释放空间 {}".format(count,vsize))
+        self.notice.send(title="[yb]清理缓存", content="清理缓存 {} 个. 释放空间 {}G".format(count,round((vsize/(1024*1024*1024)),3)))
 
     def __check_success(self, vtitle, vpath):
         count = 10
@@ -300,12 +300,6 @@ class BiliUpload:
         print("发布视频失败. {} - {}".format(vtitle, "未检测到成功标识"))
         self.notice.send(title="[yb]告警", content="发布视频失败. {} - {}".format(vtitle, "未检测到成功标识"))
 
-    def __remove_after_publish__(self, vpath):
-        dir_path = os.path.dirname(vpath)
-        shutil.rmtree(dir_path)
-        # for file in os.listdir(dir_path):
-        #     file_path = os.path.join(dir_path,file)
-        #
 
 
 if __name__ == '__main__':
