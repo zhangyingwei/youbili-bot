@@ -72,7 +72,8 @@ class YoutubGet:
             need_download += 1
             video_list.append(video_item)
         print("list videos.[{}]".format(len(video_list)))
-        self.notice.send(title="[yb]YB下载通知", content="共 {} 个视频, 下载其中的 {} 个，待下载 {} 个，有 {} 个是已经下载过.".format(len(videos),
+        if need_download > 0:
+            self.notice.send(title="[yb]YB下载通知", content="共 {} 个视频, 下载其中的 {} 个，待下载 {} 个，有 {} 个是已经下载过.".format(len(videos),
                                                                                                           self.config.get_int_config(
                                                                                                               "youtub",
                                                                                                               "video_count_pre_account"),
