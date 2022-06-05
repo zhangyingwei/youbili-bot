@@ -65,12 +65,12 @@ class YoutubGet:
             video_url = video_href
             if "shorts" not in video_url and "v=" in video_url:
                 video_item = Video(title=video_title, url=video_url)
-            if video_item.get_uuid() in states:
-                print("video had downloaded before. [{}]".format(video_item.url))
-                had_download += 1
-                continue
-            need_download += 1
-            video_list.append(video_item)
+                if video_item.get_uuid() in states:
+                    print("video had downloaded before. [{}]".format(video_item.url))
+                    had_download += 1
+                    continue
+                video_list.append(video_item)
+                need_download += 1
         print("list videos.[{}]".format(len(video_list)))
         if need_download > 0:
             self.notice.send(title="[yb]YB下载通知", content="共 {} 个视频, 下载其中的 {} 个，待下载 {} 个，有 {} 个是已经下载过.".format(len(videos),
