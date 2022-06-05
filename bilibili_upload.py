@@ -290,6 +290,7 @@ class BiliUpload:
     def __remove_after_publish__(self, vpath):
         dir_path = os.path.dirname(vpath)
         shutil.rmtree(dir_path)
+        self.notice.send(title="")
         # for file in os.listdir(dir_path):
         #     file_path = os.path.join(dir_path,file)
         #

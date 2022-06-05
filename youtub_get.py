@@ -153,7 +153,8 @@ class YoutubGet:
 
     def start_get(self, url):
         videos = self._list_vidios(url)
-        self.notice.send(title="[yb]YB下载通知", content="vcount:[{}] - url: [{}]".format(len(videos), url))
+        if len(videos) > 0:
+            self.notice.send(title="[yb]YB下载通知", content="vcount:[{}] - url: [{}]".format(len(videos), url))
         for video in videos:
             self.__get_video_tags(video)
             print("get tags of: {tt} -> {tags}".format(tt=video.title, tags=video.tags))
