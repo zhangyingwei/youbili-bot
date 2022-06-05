@@ -288,7 +288,7 @@ class BiliUpload:
                     self.__mark_uploaded(vpath)
                     self.notice.send(title="[yb]通知", content="发布视频成功. {}".format(vtitle))
                     print("发布视频成功. {}".format(vtitle))
-                    self.__remove_after_publish__(vpath)
+                    # self.__remove_after_publish__(vpath)
                     return
                 time.sleep(2)
             except Exception as e:
