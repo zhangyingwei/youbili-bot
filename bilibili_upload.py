@@ -39,6 +39,7 @@ class BiliUpload:
         self.__cookie_file__ = self.config.get_config("bili", "cookie_file")
         self.__videos_dir__ = self.config.get_config("bili", "local_video_path")
         self.__cookie_seted__ = False
+        self.__is_debug__ = self.config.get_bool_config("bili","isDebug")
 
     def __open_createor_platform(self):
         self.browser.get("https://member.bilibili.com/platform/home")
@@ -82,7 +83,8 @@ class BiliUpload:
         self.__list_videos()
 
     def __list_videos(self):
-        self.notice.send(title="[yb]发布提示", content="我已经迫不及待了...")
+        if self.__is_debug__:
+            self.notice.send(title="[yb]发布提示", content="我已经迫不及待了...")
         count = 0
         for vitem in os.listdir(self.__videos_dir__):
             info_path = os.path.join(self.__videos_dir__, vitem, "v.json")
@@ -94,7 +96,8 @@ class BiliUpload:
                 continue
             with open(info_path, "r") as info_file:
                 info = json.load(info_file)
-                print("开始处理视频: [{}]".format(info["title"]))
+                if self.__is_debug__:
+                    print("开始处理视频: [{}]".format(info["title"]))
                 try:
                     self.__open_createor_platform()
                     self.__upload_video(vpath=os.path.abspath(video_path), vtitle=info["title"], vtags=info["tags"],
@@ -263,7 +266,8 @@ class BiliUpload:
                         continue
                     if log['message'] and "相同标题的稿件" in log['message']:
                         self.__mark_uploaded(vpath)
-                        self.notice.send(title="[yb]通知", content="重复视频，跳过. {}".format(vtitle))
+                        if self.__is_debug__:
+                            self.notice.send(title="[yb]通知", content="重复视频，跳过. {}".format(vtitle))
                         return
                     elif log['message'] and "Error" in log['message']:
                         print("控制台错误. {}".format(log))
@@ -273,7 +277,8 @@ class BiliUpload:
                 if "成功" in texts.text:
                     print("标记视频为已处理")
                     self.__mark_uploaded(vpath)
-                    self.notice.send(title="[yb]通知", content="发布视频成功. {}".format(vtitle))
+                    if self.__is_debug__:
+                        self.notice.send(title="[yb]通知", content="发布视频成功. {}".format(vtitle))
                     print("发布视频成功. {}".format(vtitle))
                     self.__remove_after_publish__(vpath)
                     return
@@ -290,7 +295,7 @@ class BiliUpload:
     def __remove_after_publish__(self, vpath):
         dir_path = os.path.dirname(vpath)
         shutil.rmtree(dir_path)
-        self.notice.send(title="")
+        # self.notice.send(title="")
         # for file in os.listdir(dir_path):
         #     file_path = os.path.join(dir_path,file)
         #

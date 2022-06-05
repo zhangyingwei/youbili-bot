@@ -5,6 +5,7 @@ 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
 *.json
 *.png
 *mp4
+*.zip
 
 /.idea
 /__pycache__
