@@ -131,12 +131,19 @@ class YoutubGet:
             'outtmpl': '%(id)s%(ext)s',
             'progress_hooks': [self.finish_download_hook],
         }
-        with yt_dlp.YoutubeDL(params=ydl_ops) as ydl:
-        # with youtube_dl.YoutubeDL(params=ydl_ops) as ydl:
-            print("start download. [{}]".format(video.url))
-            start = time.time()
-            ydl.download([video.url])
-            print("download finish. [{}] in [{}]".format(video.url, (time.time() - start)))
+        try:
+            with yt_dlp.YoutubeDL(params=ydl_ops) as ydl:
+            # with youtube_dl.YoutubeDL(params=ydl_ops) as ydl:
+                print("start download. [{}]".format(video.url))
+                start = time.time()
+                ydl.download([video.url])
+                print("download finish. [{}] in [{}]".format(video.url, (time.time() - start)))
+        except:
+            with youtube_dl.YoutubeDL(params=ydl_ops) as ydl2:
+                print("start download. [{}]".format(video.url))
+                start2 = time.time()
+                ydl2.download([video.url])
+                print("download finish. [{}] in [{}]".format(video.url, (time.time() - start2)))
 
     def __load_downloaded_states(self):
         if not os.path.exists(self.__download_state_file__):
