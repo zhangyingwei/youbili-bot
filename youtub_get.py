@@ -47,11 +47,7 @@ class YoutubGet:
         if len(tabs) > 2:
             tabs[1].click()
         time.sleep(1)
-        contents = self.browser.find_element(By.ID, "contents")
-        time.sleep(1)
-        items = contents.find_element(By.ID, "items")
-        time.sleep(1)
-        videos = items.find_elements(by=By.TAG_NAME, value="ytd-grid-video-renderer")
+        videos = self.browser.find_elements(by=By.XPATH, value='//*[@id="meta"]')
         time.sleep(1)
         video_list = []
         states = self.__load_downloaded_states()
@@ -60,8 +56,8 @@ class YoutubGet:
         for index, video in enumerate(videos):
             if len(video_list) >= self.config.get_int_config("youtub", "video_count_pre_account"):
                 break
-            video_href = video.find_element(by=By.ID, value="video-title").get_attribute("href")
-            video_title = video.find_element(by=By.ID, value="video-title").text
+            video_href = video.find_element(by=By.XPATH, value='//*[@id="video-title-link"]').get_attribute("href")
+            video_title = video.find_element(by=By.XPATH, value='//*[@id="video-title"]').text
             video_url = video_href
             if "shorts" not in video_url and "v=" in video_url:
                 video_item = Video(title=video_title, url=video_url)
