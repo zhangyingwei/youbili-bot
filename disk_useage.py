@@ -4,7 +4,7 @@ from notice_bot import NoticeBot
 if __name__ == '__main__':
     notice = NoticeBot()
     # 获取硬盘占用量
-    disk_usage = psutil.disk_usage('/dev/vda1')
+    disk_usage = psutil.disk_usage('/')
 
     # 打印总容量、已用容量和可用容量
     print('总容量：', disk_usage.total)
