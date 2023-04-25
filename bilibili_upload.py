@@ -142,10 +142,17 @@ class BiliUpload:
     def __upload_video(self, vpath, vtitle, vtags, imgpath):
         print("start upload video: {}".format(vtitle))
         print("切换 iframe")
-        self.browser.switch_to.frame("videoUpload")
+        # self.browser.switch_to.frame("videoUpload")
+        # self.browser.find_element(By.LINK_TEXT,"视频投稿").click()
         print("上传视频")
         self.browser.find_element(By.CLASS_NAME, "bcc-upload-wrapper").find_element(By.TAG_NAME, "input").send_keys(
             vpath)
+
+        try:
+            time.sleep(5)
+            self.browser.find_element(By.XPATH,'//*[@id="video-up-app"]/div[3]/div/div[3]/button').click()
+        except:
+            pass
 
         title = vtitle
         time.sleep(1)
@@ -181,7 +188,8 @@ class BiliUpload:
             print("select type error.{}".format(e))
 
         tags = vtags
-        tags.append("知识分享")
+        # tags.append("知识分享")
+        tags.append("分享开发知识")
         print("添加标签")
         tag_container = self.browser.find_element(By.CLASS_NAME, "tag-container")
         for tag in tags:
@@ -198,17 +206,21 @@ class BiliUpload:
             if os.path.exists(imgpath):
                 try:
                     print("修正封面图大小")
-                    new_img_path = "{}.n.jpg".format(imgpath)
+                    new_img_path = "{}.n.jpeg".format(imgpath)
                     img = Image.open(imgpath)
                     nimg = img.resize((1146, 717))
                     print(nimg.size)
                     nimg.save(new_img_path)
-                    print("上传封面图")
-                    self.browser.find_element(By.CLASS_NAME, "bcc-upload-wrapper").find_element(By.TAG_NAME,
-                                                                                                "input").send_keys(
-                        os.path.abspath(new_img_path)
-                    )
+                    print(f"上传封面图:{new_img_path}")
+                    self.browser.find_element(By.XPATH, '//*[@id="video-up-app"]/div[2]/div/div/div[1]/div[3]/div[2]/div/div[2]/div[1]/div[1]/div/div')\
+                        .find_element(By.TAG_NAME,"input").send_keys(
+                            os.path.abspath(new_img_path)
+                        )
                     time.sleep(2)
+                    try:
+                        self.browser.find_element(By.XPATH,'//*[@id="video-up-app"]/div[2]/div/div/div[1]/div[3]/div[2]/div/div[4]/div/div/div[3]/div/div/button[2]').click()
+                    except:
+                        pass
                     self.browser.find_element(By.CLASS_NAME, "prize-dialog-footer").find_element(By.CLASS_NAME,
                                                                                                  "bcc-button--primary").click()
                     time.sleep(2)
@@ -226,7 +238,6 @@ class BiliUpload:
 
             print("publish clicked. [{}]".format(vtitle))
             self.__check_success(vtitle, vpath)
-            # TODO
             # time.sleep(10000)
             sleep_time = random.randint(60,180)
             print("random sleep.{}".format(sleep_time))
@@ -245,11 +256,12 @@ class BiliUpload:
             done_file.write("{}".format(e))
 
     def __check_finish(self):
-        status = self.browser.find_element(By.CLASS_NAME, "file-status-text").text
+        time.sleep(10)
+        status = self.browser.find_element(By.CLASS_NAME, "file-block-status-text").text
         while "完成" not in status and "失败" not in status:
             time.sleep(5)
             print("check status...[{}]".format(status))
-            status = self.browser.find_element(By.CLASS_NAME, "file-status-text").text
+            status = self.browser.find_element(By.CLASS_NAME, "file-block-status-text").text
         print("等待10秒，生成封面图.")
         time.sleep(10)
 
