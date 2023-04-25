@@ -97,7 +97,7 @@ class BiliUpload:
             if not os.path.exists(info_path):
                 print("---> v.json not found")
                 self.__mark_uploaded(video_path)
-                self.__mark_faild(video_path)
+                self.__mark_faild(video_path,None)
             with open(info_path, "r") as info_file:
                 info = json.load(info_file)
                 if self.__is_debug__:
@@ -258,6 +258,8 @@ class BiliUpload:
 
     def __mark_faild(self, vpath, e):
         with open(os.path.join(os.path.dirname(vpath), "faild_msg"), "w") as done_file:
+            if e is None:
+                e = "file not found"
             done_file.write("{}".format(e))
 
     def __check_finish(self):
