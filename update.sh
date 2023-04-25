@@ -9,7 +9,8 @@ git fetch –all
 git reset --hard origin/main
 git pull
 
-sed 's/=dev/=prod/g' conf.ini
+sed 's/=dev/=prod/g' conf.ini > conf.ini.1
+mv conf.ini.1 conf.ini -y
 mv -f /home/d_state.txt.1 ./d_state.txt
 git add .
 git commit -m 'commit by update'
