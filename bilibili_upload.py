@@ -111,6 +111,7 @@ class BiliUpload:
                     count -= 1
                     time.sleep(30)
             count += 1
+            break
         self.notice.send(title="[yb]发布通知", content="共发布了 {} 个视频".format(count))
 
     def __store_cookie(self, cookies):
