@@ -41,6 +41,7 @@ class YoutubGet:
         self.notice = NoticeBot()
 
     def _list_vidios(self, videos_url):
+        print(f"list videos:{videos_url}")
         self.browser.get(videos_url)
         tabsContent = self.browser.find_element(by=By.ID, value="tabsContent")
         tabs = tabsContent.find_elements(by=By.TAG_NAME, value="tp-yt-paper-tab")
@@ -162,7 +163,11 @@ class YoutubGet:
             state_file.write("\n")
 
     def start_get(self, url):
-        videos = self._list_vidios(url)
+        try:
+            videos = self._list_vidios(url)
+        except Exception as e:
+            print(f"list videos error. {e}")
+            return
         if len(videos) > 0:
             self.notice.send(title="[yb]YB下载通知", content="vcount:[{}] - url: [{}]".format(len(videos), url))
         for video in videos:
