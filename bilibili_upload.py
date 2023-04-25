@@ -94,6 +94,10 @@ class BiliUpload:
             print("检查 {}".format(done_path))
             if os.path.exists(done_path):
                 continue
+            if not os.path.exists(info_path):
+                print("---> v.json not found")
+                self.__mark_uploaded(video_path)
+                self.__mark_faild(video_path)
             with open(info_path, "r") as info_file:
                 info = json.load(info_file)
                 if self.__is_debug__:
