@@ -1,14 +1,15 @@
 import os
 
-path='/app/youbili-bot/video'
+path='/data/video'
 
 for video in os.listdir(path):
-    vpath = os.path.join(path,video,"v.mp4")
     dpath = os.path.join(path,video,"done")
-  #  print(vpath)
     try:
         if os.path.exists(dpath):
-            os.remove(vpath)
-            print(vpath)
+            for infile in os.listdir(os.path.join(path,video)):
+                os.remove(os.path.join(path,video,infile))
+                print(f"remove: {os.path.join(path,video,infile)}")
+            os.remove(os.path.join(path,video))
+            print(f"remove: {os.path.join(path, video, infile)}")
     except:
         pass
