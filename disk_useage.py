@@ -13,5 +13,10 @@ if __name__ == '__main__':
     print('使用率：', disk_usage.used/disk_usage.total)
     if disk_usage.used / disk_usage.total > 0.8:
         notice.send(title="[yb]硬盘告警",
-                     content="硬盘容量:{} 目前已使用:{} 剩余可用:{}".format(disk_usage.total,disk_usage.used,disk_usage.free))
+                     content="硬盘容量:{} \n目前已使用:{} \n剩余可用:{} \n使用率:{}".format(
+                         disk_usage.total,
+                         disk_usage.used,
+                         disk_usage.free,
+                         disk_usage.used / disk_usage.total
+                     ))
 
