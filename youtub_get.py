@@ -109,6 +109,7 @@ class YoutubGet:
                 print("下载缩略图失败")
 
     def __download_proview_image(self, local_path):
+        time.sleep(10)
         url = "https://i.ytimg.com/vi/{}/hqdefault.jpg".format(self.current_video.get_uuid())
         res = requests.get(url)
         if res.status_code == 200:
@@ -128,6 +129,7 @@ class YoutubGet:
             'progress_hooks': [self.finish_download_hook],
         }
         try:
+            time.sleep(10)
             with yt_dlp.YoutubeDL(params=ydl_ops) as ydl:
             # with youtube_dl.YoutubeDL(params=ydl_ops) as ydl:
                 print("start download. [{}]".format(video.url))
