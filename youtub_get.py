@@ -162,9 +162,9 @@ class YoutubGet:
         if len(videos) > 0:
             self.notice.send(title="[yb]YB下载通知", content="vcount:[{}] - url: [{}]".format(len(videos), url))
         for video in videos:
-            self.__get_video_tags(video)
-            print("get tags of: {tt} -> {tags}".format(tt=video.title, tags=video.tags))
             try:
+                self.__get_video_tags(video)
+                print("get tags of: {tt} -> {tags}".format(tt=video.title, tags=video.tags))
                 self.__download_vedios(video)
                 self.notice.send("[yb]下载完成通知", "下载完成.{} \n [{}] \t 耗时: {}s \t 文件大小: {}M".format(
                     video.get_uuid(),
