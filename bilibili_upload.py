@@ -25,7 +25,7 @@ class BiliUpload:
         self.options.add_argument("--window-size=1920,1080")
 
         self.service = Service(
-            self.config.get_config("youtub", "driver_path")
+            self.config.get_config("bili", "driver_path")
         )
         self.browser = webdriver.Chrome(
             service=self.service,
