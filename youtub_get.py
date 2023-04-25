@@ -111,6 +111,7 @@ class YoutubGet:
     def __download_proview_image(self, local_path):
         time.sleep(10)
         url = "https://i.ytimg.com/vi/{}/hqdefault.jpg".format(self.current_video.get_uuid())
+        print(f"proview image url: {url}")
         res = requests.get(url)
         if res.status_code == 200:
             with open('{}/{}.jpg'.format(local_path, self.current_video.get_name()), "wb") as img_file:
