@@ -47,18 +47,19 @@ class YoutubGet:
         if len(tabs) > 2:
             tabs[1].click()
         time.sleep(1)
-        videos = self.browser.find_elements(by=By.XPATH, value='//*[@id="meta"]')
+        videos = self.browser.find_elements(by=By.XPATH, value='//*[@id="details"]')
         time.sleep(1)
         video_list = []
         states = self.__load_downloaded_states()
         need_download = 0
         had_download = 0
-        for index, video in enumerate(videos):
+        for video in videos:
             if len(video_list) >= self.config.get_int_config("youtub", "video_count_pre_account"):
                 break
-            video_href = video.find_element(by=By.XPATH, value='//*[@id="video-title-link"]').get_attribute("href")
-            video_title = video.find_element(by=By.XPATH, value='//*[@id="video-title"]').text
+            video_href = video.find_element(by=By.ID, value='video-title-link').get_attribute("href")
+            video_title = video.find_element(by=By.ID, value='video-title').text
             video_url = video_href
+            print(f"title: {video_title}")
             if "shorts" not in video_url and "v=" in video_url:
                 video_item = Video(title=video_title, url=video_url)
                 if video_item.get_uuid() in states:
