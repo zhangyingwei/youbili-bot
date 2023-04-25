@@ -93,7 +93,7 @@ class YoutubGet:
             local_path = "{}/{}".format(self.config.get_config("youtub", "local_video_path"), d['filename'])
             if not os.path.exists(local_path):
                 os.makedirs(local_path)
-            file_name = '{}/{}.mp4'.format(local_path, self.current_video.get_name())
+            file_name = '{}/{}.{}'.format(local_path, self.current_video.get_name(),d['info_dict']['video_ext'])
             info_file_name = '{}/{}.json'.format(local_path, self.current_video.get_name())
             rename(d['filename'], file_name)
             self.__download_video_size__ = os.path.getsize(filename=file_name)
@@ -128,6 +128,8 @@ class YoutubGet:
             # 'proxy': 'socks5://192.168.1.110:20170',
             'outtmpl': '%(id)s%(ext)s',
             'progress_hooks': [self.finish_download_hook],
+            'ignoreerrors': True,
+            'format': 'best',
         }
         try:
             time.sleep(10)
