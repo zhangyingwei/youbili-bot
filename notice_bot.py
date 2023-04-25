@@ -13,8 +13,6 @@ class NoticeBot:
         #     messagecontent=content
         # )
         # resp = requests.get(url=self.url)
-        # TODO
-        resp = f"{title},{content}"
-        # resp = self.notice_client.send(title=title,content=content)
+        resp = self.notice_client.send(title=title,content=content)
         print("notice result: {}".format(resp))
 
