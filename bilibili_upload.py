@@ -5,13 +5,13 @@ import shutil
 import time
 from PIL import Image
 from selenium import webdriver
-from selenium.webdriver import Keys
+from selenium.webdriver import Keys, ActionChains
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 
 from config_kit import ConfigKit
 from notice_bot import NoticeBot
-
+from valid_image2 import ValidImage2
 
 class BiliUpload:
 
@@ -32,6 +32,7 @@ class BiliUpload:
             options=self.options
         )
         # self.browser.maximize_window()
+        self.__valid_image_client__ = ValidImage2()
         self.__init_config__()
         self.notice = NoticeBot()
 
@@ -203,6 +204,8 @@ class BiliUpload:
             tag_container.find_element(By.TAG_NAME, "input").send_keys(tag)
             tag_container.find_element(By.TAG_NAME, "input").send_keys(Keys.ENTER)
             time.sleep(2)
+        for hot_tag in self.browser.find_elements(By.CLASS_NAME,"hot-tag-container"):
+            hot_tag.click()
 
         try:
             print("检测是否上传完成")
@@ -237,10 +240,30 @@ class BiliUpload:
             self.browser.execute_script("var q=document.body.scrollTop=1000")
             time.sleep(2)
             try:
-                self.browser.find_element(By.CLASS_NAME, "submit-container").find_element(By.CLASS_NAME,
-                                                                                          "submit-add").click()
+                self.browser.find_element(By.CLASS_NAME, "submit-container").find_element(
+                    By.CLASS_NAME,"submit-add"
+                ).click()
             except:
                 self.browser.execute_script('document.getElementsByClassName("submit-add")[0].click()')
+
+            time.sleep(5)
+            if self.browser.find_element(By.CLASS_NAME,"geetest_panel") is not None:
+                style_text = self.browser.find_element(By.CLASS_NAME,"geetest_tip_img").get_attribute("style")
+                image_url = style_text.split("url(")[1].split(");")[0].replace("\"","")
+                image_valid_point = self.__valid_image_client__.valid_image(image_url)
+                if image_valid_point is None:
+                    raise Exception('验证码获取失败')
+                for point in str.split(image_valid_point,"|"):
+                    print(point)
+                    point_items = str.split(point,",")
+                    # todo 这里的点击逻辑有问题，需要修复
+                    ActionChains(self.browser).move_to_element_with_offset(
+                        self.browser.find_element(By.CLASS_NAME,"geetest_item_wrap"),
+                        float(point_items[0]),
+                        float(point_items[1])
+                    ).click().perform()
+                self.browser.find_element(By.CLASS_NAME,"geetest_commit").click()
+
 
             print("publish clicked. [{}]".format(vtitle))
             self.__check_success(vtitle, vpath)
