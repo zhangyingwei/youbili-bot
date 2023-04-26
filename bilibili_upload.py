@@ -225,10 +225,10 @@ class BiliUpload:
                     time.sleep(2)
                     try:
                         self.browser.find_element(By.XPATH,'//*[@id="video-up-app"]/div[2]/div/div/div[1]/div[3]/div[2]/div/div[4]/div/div/div[3]/div/div/button[2]').click()
+                        self.browser.find_element(By.CLASS_NAME, "prize-dialog-footer").find_element(
+                            By.CLASS_NAME,"bcc-button--primary").click()
                     except:
                         pass
-                    self.browser.find_element(By.CLASS_NAME, "prize-dialog-footer").find_element(By.CLASS_NAME,
-                                                                                                 "bcc-button--primary").click()
                     time.sleep(2)
                 except Exception as e:
                     print("上传封面图失败 - {}".format(e))
