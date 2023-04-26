@@ -98,6 +98,7 @@ class BiliUpload:
                 print("---> v.json not found")
                 self.__mark_uploaded(video_path)
                 self.__mark_faild(video_path,None)
+                continue
             with open(info_path, "r") as info_file:
                 info = json.load(info_file)
                 if self.__is_debug__:
