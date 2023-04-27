@@ -88,6 +88,8 @@ class BiliUpload:
             self.notice.send(title="[yb]发布提示", content="我已经迫不及待了...")
         count = 0
         for vitem in os.listdir(self.__videos_dir__):
+            if vitem.startswith("."):
+                continue
             info_path = os.path.join(self.__videos_dir__, vitem, "v.json")
             video_path = os.path.join(self.__videos_dir__, vitem, "v.mp4")
             img_path = os.path.join(self.__videos_dir__, vitem, "v.jpg")
@@ -247,35 +249,14 @@ class BiliUpload:
                 self.browser.execute_script('document.getElementsByClassName("submit-add")[0].click()')
 
             time.sleep(5)
-            if self.browser.find_element(By.CLASS_NAME,"geetest_panel") is not None:
-                style_text = self.browser.find_element(By.CLASS_NAME,"geetest_tip_img").get_attribute("style")
-                image_url = style_text.split("url(")[1].split(");")[0].replace("\"","")
-                image_valid_point = self.__valid_image_client__.valid_image(image_url)
-                if image_valid_point is None:
-                    raise Exception('验证码获取失败')
-
-                valid_image_ele = self.browser.find_element(By.CLASS_NAME,"geetest_item_wrap")
-                valid_image_location = valid_image_ele.location
-                init_x = valid_image_location['x']
-                init_y = valid_image_location['y'] - 200
-                action_chains = ActionChains(self.browser)
-                for point in str.split(image_valid_point,"|"):
-                    print(point)
-                    point_items = str.split(point,",")
-                    # todo 这里的点击逻辑有问题，需要修复
-                    # valid_image_location = valid_image_ele.location
-                    # print("location: {}".format(valid_image_location))
-                    click_x = float(point_items[0]) - 150 - 20
-                    click_y= float(point_items[1]) - 150 - 20
-                    print("click: {},{}".format(click_x,click_y))
-                    action_chains.move_to_element_with_offset(
-                        valid_image_ele,
-                        click_x,
-                        click_y
-                    ).click().perform()
-                    time.sleep(5)
-                self.browser.find_element(By.CLASS_NAME,"geetest_commit").click()
-                action_chains.perform()
+            try_valid_count = 3
+            while self.browser.find_element(By.CLASS_NAME,"geetest_panel") is not None and try_valid_count >=0:
+                try:
+                    print("尝试点击验证码...")
+                    self.__try_valid_image__()
+                except:
+                    try_valid_count-=1
+                time.sleep(5)
 
 
             print("publish clicked. [{}]".format(vtitle))
@@ -340,7 +321,7 @@ class BiliUpload:
                     return
                 time.sleep(2)
             except Exception as e:
-                print("发布成功检测: {}".format(e))
+                print("发布成功检测失败: {}".format(e))
                 time.sleep(2)
         self.browser.get_screenshot_as_file(
             os.path.abspath("{}.screenshot.png".format(vpath))
@@ -355,6 +336,36 @@ class BiliUpload:
         # for file in os.listdir(dir_path):
         #     file_path = os.path.join(dir_path,file)
         #
+
+    def __try_valid_image__(self):
+        style_text = self.browser.find_element(By.CLASS_NAME, "geetest_tip_img").get_attribute("style")
+        image_url = style_text.split("url(")[1].split(");")[0].replace("\"", "")
+        image_valid_point = self.__valid_image_client__.valid_image(image_url)
+        if image_valid_point is None:
+            raise Exception('验证码获取失败')
+
+        valid_image_ele = self.browser.find_element(By.CLASS_NAME, "geetest_item_wrap")
+        valid_image_location = valid_image_ele.location
+        init_x = valid_image_location['x']
+        init_y = valid_image_location['y'] - 200
+        action_chains = ActionChains(self.browser)
+        for point in str.split(image_valid_point, "|"):
+            print(point)
+            point_items = str.split(point, ",")
+            # todo 这里的点击逻辑有问题，需要修复
+            # valid_image_location = valid_image_ele.location
+            # print("location: {}".format(valid_image_location))
+            click_x = float(point_items[0]) - 150 - 20
+            click_y = float(point_items[1]) - 150 - 20
+            print("click: {},{}".format(click_x, click_y))
+            action_chains.move_to_element_with_offset(
+                valid_image_ele,
+                click_x,
+                click_y
+            ).click().perform()
+            time.sleep(5)
+        self.browser.find_element(By.CLASS_NAME, "geetest_commit").click()
+        action_chains.perform()
 
 
 if __name__ == '__main__':

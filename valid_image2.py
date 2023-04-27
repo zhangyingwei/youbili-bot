@@ -23,7 +23,7 @@ class ValidImage2:
             "username": "%s" % self.__api_user_name__,
             "password": "%s" % self.__api_password__,
             "captchaData": img64,
-            "captchaType": 1324
+            "captchaType": 1311
         }
         response = requests.post(self.__api_post_url__, data=params)
         if response.status_code == 200:
