@@ -341,6 +341,7 @@ class BiliUpload:
         style_text = self.browser.find_element(By.CLASS_NAME, "geetest_tip_img").get_attribute("style")
         image_url = style_text.split("url(")[1].split(");")[0].replace("\"", "")
         image_valid_point = self.__valid_image_client__.valid_image(image_url)
+        print("获取验证码点击坐标.{}".format(image_valid_point))
         if image_valid_point is None:
             raise Exception('验证码获取失败')
 
