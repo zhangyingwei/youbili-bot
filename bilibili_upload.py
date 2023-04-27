@@ -13,6 +13,7 @@ from config_kit import ConfigKit
 from notice_bot import NoticeBot
 from valid_image2 import ValidImage2
 
+
 class BiliUpload:
 
     def __init__(self):
@@ -40,7 +41,7 @@ class BiliUpload:
         self.__cookie_file__ = self.config.get_config("bili", "cookie_file")
         self.__videos_dir__ = self.config.get_config("bili", "local_video_path")
         self.__cookie_seted__ = False
-        self.__is_debug__ = self.config.get_bool_config("bili","isDebug")
+        self.__is_debug__ = self.config.get_bool_config("bili", "isDebug")
 
     def __open_createor_platform(self):
         self.browser.get("https://member.bilibili.com/platform/home")
@@ -100,7 +101,7 @@ class BiliUpload:
             if not os.path.exists(info_path):
                 print("---> v.json not found")
                 self.__mark_uploaded(video_path)
-                self.__mark_faild(video_path,None)
+                self.__mark_faild(video_path, None)
                 continue
             with open(info_path, "r") as info_file:
                 info = json.load(info_file)
@@ -114,7 +115,7 @@ class BiliUpload:
                 except Exception as e:
                     print("处理视频失败. {}".format(e))
                     self.__mark_uploaded(video_path)
-                    self.__mark_faild(video_path,e)
+                    self.__mark_faild(video_path, e)
                     self.notice.send(title="[yb]视频处理通知", content="处理视频失败. {}".format(e))
                     count -= 1
                     time.sleep(30)
@@ -159,7 +160,7 @@ class BiliUpload:
 
         try:
             time.sleep(5)
-            self.browser.find_element(By.XPATH,'//*[@id="video-up-app"]/div[3]/div/div[3]/button').click()
+            self.browser.find_element(By.XPATH, '//*[@id="video-up-app"]/div[3]/div/div[3]/button').click()
         except:
             pass
 
@@ -206,7 +207,7 @@ class BiliUpload:
             tag_container.find_element(By.TAG_NAME, "input").send_keys(tag)
             tag_container.find_element(By.TAG_NAME, "input").send_keys(Keys.ENTER)
             time.sleep(2)
-        for hot_tag in self.browser.find_elements(By.CLASS_NAME,"hot-tag-container"):
+        for hot_tag in self.browser.find_elements(By.CLASS_NAME, "hot-tag-container"):
             hot_tag.click()
 
         try:
@@ -223,15 +224,17 @@ class BiliUpload:
                     print(nimg.size)
                     nimg.save(new_img_path)
                     print(f"上传封面图:{new_img_path}")
-                    self.browser.find_element(By.XPATH, '//*[@id="video-up-app"]/div[2]/div/div/div[1]/div[3]/div[2]/div/div[2]/div[1]/div[1]/div/div')\
-                        .find_element(By.TAG_NAME,"input").send_keys(
-                            os.path.abspath(new_img_path)
-                        )
+                    self.browser.find_element(By.XPATH,
+                                              '//*[@id="video-up-app"]/div[2]/div/div/div[1]/div[3]/div[2]/div/div[2]/div[1]/div[1]/div/div') \
+                        .find_element(By.TAG_NAME, "input").send_keys(
+                        os.path.abspath(new_img_path)
+                    )
                     time.sleep(2)
                     try:
-                        self.browser.find_element(By.XPATH,'//*[@id="video-up-app"]/div[2]/div/div/div[1]/div[3]/div[2]/div/div[4]/div/div/div[3]/div/div/button[2]').click()
+                        self.browser.find_element(By.XPATH,
+                                                  '//*[@id="video-up-app"]/div[2]/div/div/div[1]/div[3]/div[2]/div/div[4]/div/div/div[3]/div/div/button[2]').click()
                         self.browser.find_element(By.CLASS_NAME, "prize-dialog-footer").find_element(
-                            By.CLASS_NAME,"bcc-button--primary").click()
+                            By.CLASS_NAME, "bcc-button--primary").click()
                     except:
                         pass
                     time.sleep(2)
@@ -243,26 +246,34 @@ class BiliUpload:
             time.sleep(2)
             try:
                 self.browser.find_element(By.CLASS_NAME, "submit-container").find_element(
-                    By.CLASS_NAME,"submit-add"
+                    By.CLASS_NAME, "submit-add"
                 ).click()
             except:
                 self.browser.execute_script('document.getElementsByClassName("submit-add")[0].click()')
 
             time.sleep(5)
             try_valid_count = 3
-            while self.browser.find_element(By.CLASS_NAME,"geetest_panel") is not None and try_valid_count >=0:
+
+            try:
+                valid_panel_ele = self.browser.find_element(By.CLASS_NAME, "geetest_panel")
+            except:
+                valid_panel_ele = None
+            while valid_panel_ele is not None and try_valid_count >= 0:
                 try:
                     print("尝试点击验证码...")
                     self.__try_valid_image__()
                 except:
-                    try_valid_count-=1
+                    try_valid_count -= 1
+                try:
+                    valid_panel_ele = self.browser.find_element(By.CLASS_NAME, "geetest_panel")
+                except:
+                    valid_panel_ele = None
                 time.sleep(5)
-
 
             print("publish clicked. [{}]".format(vtitle))
             self.__check_success(vtitle, vpath)
             # time.sleep(10000)
-            sleep_time = random.randint(60,180)
+            sleep_time = random.randint(60, 180)
             print("random sleep.{}".format(sleep_time))
             time.sleep(sleep_time)
 
