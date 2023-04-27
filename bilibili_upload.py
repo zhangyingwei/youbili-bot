@@ -265,8 +265,8 @@ class BiliUpload:
                     # todo 这里的点击逻辑有问题，需要修复
                     # valid_image_location = valid_image_ele.location
                     # print("location: {}".format(valid_image_location))
-                    click_x = float(point_items[0]) - 150
-                    click_y= float(point_items[1]) - 150
+                    click_x = float(point_items[0]) - 150 - 20
+                    click_y= float(point_items[1]) - 150 - 20
                     print("click: {},{}".format(click_x,click_y))
                     action_chains.move_to_element_with_offset(
                         valid_image_ele,
