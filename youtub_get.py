@@ -13,6 +13,7 @@ import json
 
 from config_kit import ConfigKit
 from notice_bot import NoticeBot
+import disk_useage
 
 
 class YoutubGet:
@@ -208,14 +209,17 @@ class Video:
 
 
 if __name__ == '__main__':
-    urls = []
-    try:
-        with open(ConfigKit().get_config("youtub", "yurl_path"), "r") as urls_file:
-            for line in urls_file.readlines():
-                if line not in urls:
-                    urls.append(line)
-        NoticeBot().send(title="[yb]信息", content="开始下载数据，共 [{}] 个URL".format(len(urls)))
-        for url in urls:
-            YoutubGet().start_get(url=url)
-    except Exception as e:
-        NoticeBot().send("[yb]告警", "YB启动失败.{}".format(e))
+    if disk_useage.is_disk_full():
+        NoticeBot().send(title="[yb]告警", content="磁盘存储超过 80%。Youtub 下载任务驳回")
+    else:
+        urls = []
+        try:
+            with open(ConfigKit().get_config("youtub", "yurl_path"), "r") as urls_file:
+                for line in urls_file.readlines():
+                    if line not in urls:
+                        urls.append(line)
+            NoticeBot().send(title="[yb]信息", content="开始下载数据，共 [{}] 个URL".format(len(urls)))
+            for url in urls:
+                YoutubGet().start_get(url=url)
+        except Exception as e:
+            NoticeBot().send("[yb]告警", "YB启动失败.{}".format(e))

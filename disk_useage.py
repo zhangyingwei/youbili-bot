@@ -20,3 +20,9 @@ if __name__ == '__main__':
                          disk_usage.used / disk_usage.total
                      ))
 
+
+def is_disk_full():
+    disk_usage = psutil.disk_usage('/')
+    if disk_usage.used / disk_usage.total > 0.8:
+        return True
+    return False
