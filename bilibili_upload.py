@@ -271,6 +271,7 @@ class BiliUpload:
                 time.sleep(5)
 
             print("publish clicked. [{}]".format(vtitle))
+            time.sleep(10)
             self.__check_success(vtitle, vpath)
             # time.sleep(10000)
             sleep_time = random.randint(60, 180)
