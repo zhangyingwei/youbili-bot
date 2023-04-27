@@ -253,16 +253,29 @@ class BiliUpload:
                 image_valid_point = self.__valid_image_client__.valid_image(image_url)
                 if image_valid_point is None:
                     raise Exception('验证码获取失败')
+
+                valid_image_ele = self.browser.find_element(By.CLASS_NAME,"geetest_item_wrap")
+                valid_image_location = valid_image_ele.location
+                init_x = valid_image_location['x']
+                init_y = valid_image_location['y'] - 200
+                action_chains = ActionChains(self.browser)
                 for point in str.split(image_valid_point,"|"):
                     print(point)
                     point_items = str.split(point,",")
                     # todo 这里的点击逻辑有问题，需要修复
-                    ActionChains(self.browser).move_to_element_with_offset(
-                        self.browser.find_element(By.CLASS_NAME,"geetest_item_wrap"),
-                        float(point_items[0]),
-                        float(point_items[1])
+                    # valid_image_location = valid_image_ele.location
+                    # print("location: {}".format(valid_image_location))
+                    click_x = float(point_items[0]) - 150
+                    click_y= float(point_items[1]) - 150
+                    print("click: {},{}".format(click_x,click_y))
+                    action_chains.move_to_element_with_offset(
+                        valid_image_ele,
+                        click_x,
+                        click_y
                     ).click().perform()
+                    time.sleep(5)
                 self.browser.find_element(By.CLASS_NAME,"geetest_commit").click()
+                action_chains.perform()
 
 
             print("publish clicked. [{}]".format(vtitle))
