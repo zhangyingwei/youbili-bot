@@ -19,5 +19,9 @@ for video in os.listdir(path):
             print(f"remove: {os.path.join(path, video, infile)}")
             print("-----------------")
     except Exception as e:
-        print(f"报错了: {e}")
-        pass
+        print(f"报错了: {e}. 尝试删除dir")
+        try:
+            os.rmdir(infile_path)
+            print(f"remove dir: {infile_path}")
+        except Exception as e2:
+            print(f"remove dir failed.{e2}")
