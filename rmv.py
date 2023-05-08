@@ -13,5 +13,6 @@ for video in os.listdir(path):
             os.remove(os.path.join(path,video))
             print(f"remove: {os.path.join(path, video, infile)}")
             print("-----------------")
-    except:
+    except Exception as e:
+        print(f"报错了: {e}")
         pass
